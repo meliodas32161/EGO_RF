@@ -1,0 +1,2 @@
+bounds = [[-5,0,0],[10,15,1]]
+generate_sample_points(bounds, n_samples,D)
