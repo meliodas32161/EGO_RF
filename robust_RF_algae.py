@@ -23,8 +23,6 @@ from microalgae_model.cycle import Cycle
 from skopt import Space
 from skopt.space import Real, Integer, Categorical
 import random
-
-# 载入数据集，并将数据分为训练集和测试集
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -33,83 +31,11 @@ path = os.getcwd()
 datapaths = os.path.join(path,'algae_curve_data_7.xlsx')
 algae_data_curve_4 = pd.read_excel(datapaths)
 algae_data_curve_4 = np.array(algae_data_curve_4)
-train_idx = random.sample(range(0,len(algae_data_curve_4)),int(len(algae_data_curve_4)/2-1)) # 随机抽取训练集索引作为训练集
+train_idx = random.sample(range(0,len(algae_data_curve_4)),int(len(algae_data_curve_4)/2-1)) 
 
-
-# train_x_curve_[:,0] = train_x_curve_[:,0] #+ poisson.rvs(mu=2, size=len(train_idx))-poisson.rvs(mu=5, size=len(train_idx))
-# train_x_curve_[:,1] = train_x_curve_[:,1]# + np.random.normal(0, 0.03, len(train_idx))
-# train_x_curve_[:,2] = train_x_curve_[:,2] #+ np.random.normal(0, 0.01, len(train_idx))
-# train_x_curve_[:,3] = train_x_curve_[:,3] #- 0.05*(poisson.rvs(mu=3, size=len(train_idx)))
-
-
-# train_y_curve_ = train_y_curve[train_idx]
 ini_param = [0.0138,121,0.06]
 def microalgae_growth(ini_param,var,t_up=120,t_lb=0):
-    # ini_param=[X0,num,z]
-    # parameter_light = {"xmax":1.0,  # 环境最大浓度  ,g/m3
-    #              "um":45.9946,   # 最大比增长率     ,1/h
-    #              "Ka":0.054, # 光衰减系数        ,m2/g
-    #              "KIi":987.882,    # 光抑制常数    3            ,μmol/m2 s
-    #              "KIs":21.7205 ,  # 光饱和常数    4           ,μmol/m2 s
-    #              "ud":0.0001,   # 比光合自养衰减率 5
-    #              "KNi":853.5633,    # N元素营养抑制常数  6       ,mg/L
-    #              "KNs":90.502,   # N元素营养饱和常数  7      ,mg/L
-    #              "Yx/N":48.871,   # N元素吸收速率 8            ,无量纲
-    #                "m/N":7.6401,     # N元素相关系数
-    #              #"alpha":750,  # α是细胞生长引起的产物形成的瞬时产量系数（g g−1）9
-    #               #"beta":0.0005, # 产品(脂质)的具体形成速率 https://doi.org/10.1007/s10811-016-0841-4 
-    #                "KPi":991.1707 ,    # C元素营养抑制常数  9
-    #               "KPs":890.32927,   # C元素营养饱和常数  10
-    #                "Yx/P":87.678067,   # 乙酸吸收速率 18
-    #                "m/P":1.042953
-    #             }
-    # parameter_dark= {"xmax":0.3958137,  # 环境最大浓度  ,g/m3
-                     
-    #                 "um":40.7287343607939,  # 氮吸收最大速率  0
-    #                  "ud":0.0001,   # 比光合自养衰减率 5
-    #              "KNi":173.31,    # 营养抑制常数  1
-    #               "KNs":130.22,   # 营养饱和常数  2
-    #              "Yx/N":70.6983 ,  # N元素吸收速率 3
-    #               "m/N":34.18317,     # N元素相关系数
-    #             # "alpha":91.235,  # α是细胞生长引起的产物形成的瞬时产量系数（g g−1）4
-    #              #"beta":39.596, # 产品(脂质)的具体形成速率 10 https://doi.org/10.1007/s10811-016-0841-4 5
-    #               "KPi":38.65422 ,    # C元素营养抑制常数  9
-    #               "KPs":38.2133,   # C元素营养饱和常数  10
-    #               "Yx/P":59.0748,   # 乙酸吸收速率 13
-    #                "m/P":0.0001
-    #                  }
-    # parameter_light = {"xmax":1.0,  # 环境最大浓度  ,g/m3
-    #              "um":1.946,   # 最大比增长率     ,1/h
-    #              "Ka":3.84, # 光衰减系数        ,m2/g
-    #              "KIi":687.882,    # 光抑制常数    3            ,μmol/m2 s
-    #              "KIs":200.7205 ,  # 光饱和常数    4           ,μmol/m2 s
-    #              "ud":0.02,   # 比光合自养衰减率 5
-    #              "KNi":653.5633,    # N元素营养抑制常数  6       ,mg/L
-    #              "KNs":500.502,   # N元素营养饱和常数  7      ,mg/L
-    #              "Yx/N":15.871,   # N元素吸收速率 8            ,无量纲
-    #                "m/N":1.6401,     # N元素相关系数
-    #              #"alpha":750,  # α是细胞生长引起的产物形成的瞬时产量系数（g g−1）9
-    #               #"beta":0.0005, # 产品(脂质)的具体形成速率 https://doi.org/10.1007/s10811-016-0841-4 
-    #                "KPi":40.1707 ,    # C元素营养抑制常数  9
-    #               "KPs":19.32927,   # C元素营养饱和常数  10
-    #                "Yx/P":18.678067,   # 乙酸吸收速率 18
-    #                "m/P":0.242953
-    #             }
-    # parameter_dark= {"xmax":0.885,  # 环境最大浓度  ,g/m3
-                     
-    #                 "um":1.7287343607939,  # 氮吸收最大速率  0
-    #                  "ud":0.005,   # 比光合自养衰减率 5
-    #              "KNi":473.31,    # 营养抑制常数  1
-    #               "KNs":430.22,   # 营养饱和常数  2
-    #              "Yx/N":50.6983 ,  # N元素吸收速率 3
-    #               "m/N":34.18317,     # N元素相关系数
-    #             # "alpha":91.235,  # α是细胞生长引起的产物形成的瞬时产量系数（g g−1）4
-    #              #"beta":39.596, # 产品(脂质)的具体形成速率 10 https://doi.org/10.1007/s10811-016-0841-4 5
-    #               "KPi":38.65422 ,    # C元素营养抑制常数  9
-    #               "KPs":38.2133,   # C元素营养饱和常数  10
-    #               "Yx/P":9.0748,   # 乙酸吸收速率 13
-    #                "m/P":0.11
-    #                  }
+    
     parameter_light = {"xmax":1.8,  # 环境最大浓度  ,g/m3
                  "um":2.5946,   # 最大比增长率     ,1/h
                  "Ka":1.84, # 光衰减系数        ,m2/g
@@ -153,85 +79,44 @@ def microalgae_growth(ini_param,var,t_up=120,t_lb=0):
     P1 = [P[i] for i in range(121) if i%12==0 ]
     return [X[-1],N[-1],P[-1]],[X1,N1,P1], [X[84],N[84],P[84]]
 
-train_x_curve = algae_data_curve_4[:,1:5] # 目标域训练输入
+train_x_curve = algae_data_curve_4[:,1:5] 
 
-train_x_curve = train_x_curve[train_idx]# 将被抽取的索引作为训练集
+train_x_curve = train_x_curve[train_idx]
 train_y_curve_ = []
 for x in train_x_curve:
     train_y_curve_.append(microalgae_growth(ini_param,x,t_up=120,t_lb=0)[2][0])
 train_y_curve = np.array(train_y_curve_).flatten()
-# train_y_curve = algae_data_curve_4[:,5]  # 目标与训练标签 微藻生物量
+# train_y_curve = algae_data_curve_4[:,5]  
 
 import geatpy as ea
 from myproblem import MyProblem
 
 def EI_optimize(model,model_RF,model_std,model_std_mu,X_sample,bounds,distributions,model_type,goal='min',uncertainty='GW'):
     
-    # # model,model_RF,bounds,distribution,model_type = args
-    # mu_samples,_,std = convolute_RF(X_sample,dists=distributions,model=model,model_RF=model_RF,
-    #                                 model_std=model_std,model_std_mu=model_std_mu,bound=bounds)
-    # y = mu_samples
-    # if goal == 'max':
-    #     y_ = np.max(y)
-    # if goal == 'min':
-    #     y_ = np.min(y)
+    
     problem = MyProblem(X_sample,model,model_RF,model_std,model_std_mu,bounds,distributions,model_type,goal=goal,uncertainty=uncertainty)
     algorithm = ea.soea_EGA_templet(problem,
                                 ea.Population(Encoding='RI',NIND=20),
-                                MAXGEN=400,  # 最大进化代数
+                                MAXGEN=400,  
                                 logTras=0
                                 )  
-    # algorithm.mutOper.F = 0.5  # 差分进化中的参数F
-    # algorithm.recOper.XOVR = 0.7  # 重组概率
+    # algorithm.mutOper.F = 0.5  
+    # algorithm.recOper.XOVR = 0.7  
     res = ea.optimize(algorithm, verbose=False, drawing=0, outputMsg=False, drawLog=False, saveFlag=False,)
     
     return res
 
-
-
-# 定义采集函数取最大的函数
 
 def propose_location(model,model_RF,model_std,model_std_mu, X_sample, Y_sample, bounds,uncertainty='GW',distributions=None,model_type='gp', goal=None,n_restarts = 2):
     dim = X_sample.shape[1]   # X_sample: Sample locations (n x d). 所以dim = 1
     min_val = 1
     min_x = None
     
-    # def min_obj(X,*args):
-    #     # Minimization objective is the negative acquisition function
-    #     # return -acquisition(X.reshape(-1, dim), X_sample, Y_sample, gpr)#.reshape(-1, dim)
-    #     return -acquisition(X,*args)#.reshape(-1, dim)
-   
-    # # Find the best optimum by starting from n_restart different random points.
-    # arg = (model,model_RF,bounds,distributions,model_type)
-    # # 一维
-    # if dim == 1:
-        
-    #     bound =np.array([bounds])
-    # else:
-    # # 二维以上
-    #     bound = np.array(bounds).T
-    # # x1 = np.random.uniform(bounds[0], bounds[1], size=(n_restarts, dim))
-    # x1 = np.random.uniform(bounds[0][0], bounds[1][0], size=(n_restarts, 1))
-    # x2 = np.random.randint(bounds[0][1], bounds[1][1], size=(n_restarts, 1))
-    # x3 = np.random.randint(bounds[0][2], bounds[1][2], size=(n_restarts, 1))
-    # x4 = np.random.uniform(bounds[0][3], bounds[1][3], size=(n_restarts, 1))
-    # x_ = np.concatenate((x1,x2,x3,x4),axis=1)
-    
-    # # 使用遗传算法优化EI准则
-    # for x0 in x_:
-    #     res = minimize(min_obj, x0=x0, bounds=bound,args=arg,method = 'SLSQP')        
-    #     if res.fun < min_val:
-    #         min_val = res.fun
-    #         min_x = res.x     
-    # # x0 = np.random.uniform(bounds[0], bounds[1], size=(20,)) 
-    # # res = minimize(min_obj, x0=x0, bounds=bound,args=arg,method = 'SLSQP')
-    # # min_x = res.x
     EI_res = EI_optimize(model,model_RF,model_std,model_std_mu,X_sample,bounds,distributions,model_type,goal=goal,uncertainty=uncertainty)  
     min_x = EI_res["Vars"]        
             
     return min_x.reshape(1, -1)
 
-# =============================高维考虑模型和参数不确定性的代理鲁棒优化=======================
 def robust_optimization_GW_3(objective_function,bounds, n_samples, n_iterations,
                           distributions =None, D=3,X_samples=None,y_samples=None,uncertainty='GW',model_type='gp',goal='min',nproc=1):
    
@@ -278,15 +163,11 @@ def robust_optimization_GW_3(objective_function,bounds, n_samples, n_iterations,
     if model_type == 'gp':
         dists = distributions
         model.fit(X_3, y_3)
-
-       
-        # kriging 推荐值
         x_next_3 = propose_location( model,model_RF,X_3, y_3, bounds,uncertainty=uncertainty, n_restarts = 20,distributions = dists)
-        # x_next_3 = propose_location(gaussian_ei, model,model_RF,X_3, y_3, bounds, n_restarts = 10)
+
         y_next_mean_3, _ = model.predict(x_next_3, return_std=True)
         y_next_3 = objective_function(x_next_3.flatten()).reshape(y_dim,)
-        # X_3 = np.vstack([X_3, x_next_3])
-        # y_3.append(y_next_3)
+
         print(x_next_3)
         print(y_next_3)
         # _,y_pred_std_3 = model.predict(x_true_3,return_std=True)
@@ -295,49 +176,23 @@ def robust_optimization_GW_3(objective_function,bounds, n_samples, n_iterations,
         dists = distributions
         model_RF.fit(X_3, y_3.ravel())
         model.fit(X_3, y_3)
-        # model_std.fit(X_3,y_3)
         model_std_mu.fit(X_3,y_3)
-        
-        # 这一步是想用golem模型拟合一个用于预测输入x与方差的函数
         std_G = model_RF.predict(X_3,return_std=True)[1]
         model_std.fit(X=X_3, y=std_G)
-        # Plot the current RF model
-        # y_pred_mean_3 = model.forest.predict(x_true_3)
-        # y_pred_mean_3,y_pred_std_3 = model_RF.predict(x_true_3,return_std=True)
 
-
-        # RandomForest 推荐值
         x_next_3 = propose_location( model,model_RF,model_std,model_std_mu,X_3, y_3, bounds,uncertainty=uncertainty,distributions = dists,model_type=model_type,goal=goal, n_restarts = 10)
         print(x_next_3)
         print(x_next_3.shape)
-        # x_next_3[0] = x_next_3[0] + poisson.rvs(mu=2, size=len(x_next_3))-poisson.rvs(mu=5, size=len(x_next_3))
-        # x_next_3[1] = x_next_3[1] + np.random.normal(0, 0.03, len(x_next_3))
-        # x_next_3[2] = x_next_3[2]+ np.random.normal(0, 0.01, len(x_next_3))
-        # x_next_3[3] = x_next_3[3]- 0.05*(poisson.rvs(mu=3, size=len(x_next_3)))
+    
         x_next_3[0][0] = x_next_3[0][0] -poisson.rvs(mu=5, size=1)
         x_next_3[0][1] = x_next_3[0][1] + norm.rvs(0, 30, 1)
         x_next_3[0][2] = x_next_3[0][2]+ norm.rvs(0, 10, 1)
         x_next_3[0][3] = x_next_3[0][3]#- 0.05*(poisson.rvs(mu=3, size=1))
-        # y_next_mean_3 = model.forest.predict(x_next_3)
-        # y_next_3 = objective_function(x_next_3.flatten())
-        # y_new = objective_function(ini_param=ini_param,var=x_next_3.flatten())
-        y_X,_ ,y_next_3 = objective_function(ini_param=ini_param,var=x_next_3.flatten())
-        
-        # y_3.append(y_next_3)
-        
-        # print(y_next_3[0])
-
-        # plt.figure()
-        # y_ei = gaussian_ei(x_true_3,model,model_RF,bounds,dists,model_type)
-        # plt.plot(x_true_3.flatten(),y_ei)
-        # plt.show()
-        
-        # _,y_pred_std_3 = model_RF.predict(x_true_3,return_std=True)
-   
-        
+       
+        y_X,_ ,y_next_3 = objective_function(ini_param=ini_param,var=x_next_3.flatten())      
     return x_next_3,y_next_3[0],model,model_RF,model_std,model_std_mu#,mu_wG, std_WG,std_w,y_pred_mean_3, y_pred_std_3
 
-#==================================== 不在迭代过程中添加噪声 ================================#
+#==================================== no noise in the iteration ================================#
 def robust_optimization_GW_3_no(objective_function,bounds, n_samples, n_iterations,
                           distributions =None, D=3,X_samples=None,y_samples=None,uncertainty='GW',model_type='gp',goal='min',nproc=1):
    
@@ -354,9 +209,7 @@ def robust_optimization_GW_3_no(objective_function,bounds, n_samples, n_iteratio
         # model_std = Golem_std(goal=goal, ntrees=4,random_state=42, nproc=nproc)
         model_std_mu = Golem_std_mu(goal=goal, ntrees=4,random_state=42, nproc=nproc)
         model_RF = RF_std(n_estimators=4,criterion='squared_error',n_jobs=nproc,min_variance=0.01)
-    # model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10,alpha=0.02, normalize_y=True) 
-    # model_RF = RF_std()
-    # model = GaussianProcessRegressor()
+
     y_3 = []
     if X_samples.all != None:
         X_3 = X_samples
@@ -368,10 +221,7 @@ def robust_optimization_GW_3_no(objective_function,bounds, n_samples, n_iteratio
         y_3 = []
         for x in X_3:
             y_3.append(objective_function(x, uncertainty=0))  
-        
-        # y_3 =np.array(y_3)     
-    # if X_3.shape[1] != D:
-    #     raise ValueError("The dimansion of X must equal to D")
+
     
     y_3 =np.array(y_3)  
     y_dim = len(y_samples_RF.shape)  # 目标空间的维度    
@@ -379,32 +229,25 @@ def robust_optimization_GW_3_no(objective_function,bounds, n_samples, n_iteratio
     mu_wG = []
     std_w = []
     std_WG = []
-     
-        # result_std_G, error_G = nquad(integrand_std, [bounds],args=(model,x0))
+
     if model_type == 'gp':
         dists = distributions
         model.fit(X_3, y_3)
 
-
-        # kriging 推荐值
         x_next_3 = propose_location( model,model_RF,X_3, y_3, bounds,uncertainty=uncertainty, n_restarts = 20,distributions = dists)
-        # x_next_3 = propose_location(gaussian_ei, model,model_RF,X_3, y_3, bounds, n_restarts = 10)
         y_next_mean_3, _ = model.predict(x_next_3, return_std=True)
         y_next_3 = objective_function(x_next_3.flatten()).reshape(y_dim,)
-        # X_3 = np.vstack([X_3, x_next_3])
-        # y_3.append(y_next_3)
+
         print(x_next_3)
         print(y_next_3)
-        # _,y_pred_std_3 = model.predict(x_true_3,return_std=True)
+
 
     if model_type == 'rf':
         dists = distributions
         model_RF.fit(X_3, y_3.ravel())
         model.fit(X_3, y_3)
-        # model_std.fit(X_3,y_3)
         model_std_mu.fit(X_3,y_3)
-        
-        # 这一步是想用golem模型拟合一个用于预测输入x与方差的函数
+
         std_G = model_RF.predict(X_3,return_std=True)[1]
         model_std.fit(X=X_3, y=std_G)
         
@@ -415,36 +258,23 @@ def robust_optimization_GW_3_no(objective_function,bounds, n_samples, n_iteratio
         x_next_3 = propose_location( model,model_RF,model_std,model_std_mu,X_3, y_3, bounds,uncertainty=uncertainty,distributions = dists,model_type=model_type,goal=goal, n_restarts = 10)
         
         y_X,_ ,y_next_3 = objective_function(ini_param=ini_param,var=x_next_3.flatten())
-        
-        # y_3.append(y_next_3)
-        
-        # print(y_next_3[0])
-
-        # plt.figure()
-        # y_ei = gaussian_ei(x_true_3,model,model_RF,bounds,dists,model_type)
-        # plt.plot(x_true_3.flatten(),y_ei)
-        # plt.show()
-        
-        # _,y_pred_std_3 = model_RF.predict(x_true_3,return_std=True)
-   
+       
         
     return x_next_3,y_next_3[0],model,model_RF,model_std,model_std_mu#,mu_wG, std_WG,std_w,y_pred_mean_3, y_pred_std_3
 
 
-def min_index(data): # 寻找最小值的所有索引
-    index = []  # 创建列表,存放最小值的索引
-    # data = data.A  # 若data是矩阵，需先转为array,因为矩阵ravel后仍是二维的形式，影响if环节
-    dim_1 = data.ravel()  # 转为一维数组
-    min_n = min(dim_1)  # 最大值max_n
+def min_index(data): 
+    index = []  
+    # data = data.A  
+    dim_1 = data.ravel()  
+    min_n = min(dim_1)  
     for i in range(len(dim_1)):
-        if dim_1[i] == min_n:  # 遍历寻找最大值，并全部索引值进行操作
-            pos = np.unravel_index(i, data.shape, order='C')  # 返回一维索引对应的多维索引，譬如4把转为(1,1),即一维中的第5个元素对应在二维里的位置是2行2列
-            index.append(pos)  # 存入index
+        if dim_1[i] == min_n:  
+            pos = np.unravel_index(i, data.shape, order='C') 
+            index.append(pos)  
     return np.array(index)
 
-        
-        
-#%% 多维函数的实验
+
 if __name__ == '__main__': 
     # samples=np.array([[0], [0.22], [0.39], [0.63], [0.86],[1]])
     objective_function = microalgae_growth
@@ -578,38 +408,7 @@ if __name__ == '__main__':
 
         
 
-        # # 使用skopt库    
-        # # 不考虑不确定性的优化
-        # from skopt import forest_minimize
-        # # from skopt.optimizer import ForestMinimizer
-        # from skopt.plots import plot_convergence
-        # from skopt import space
-        # def objective_func(x):
-        #     return microalgae_growth(ini_param=ini_param,var=x)[2][0]
-        # # 定义搜索空间
-        # search_space = [
-        #     space.Integer(bounds[0][0],bounds[1][0],name='I'),
-        #     space.Real(bounds[0][1],bounds[1][1],name='N') ,  # x2 在 [-10, 10] 之间
-        #     space.Real(bounds[0][2],bounds[1][2],name='P')  , # x2 在 [-10, 10] 之间
-        #     space.Integer(bounds[0][3],bounds[1][3],name='tf')
-        # ]
-
-        # # 定义最大迭代次数
-        # max_iter = 10
-        # result = forest_minimize(func=objective_func,
-        #                     base_estimator="RF",
-        #                     dimensions=search_space,
-        #                     acq_func="EI",          # 采集函数：期望改进（Expected Improvement）
-        #                     # n_estimators=4,       # 随机森林中树的数量
-        #                     n_calls=max_iter,
-        #                     n_initial_points=10,    # 初始随机采样点的数量
-        #                     random_state=42         # 随机种子
-        #                     )
-        # print(result['x'])
-        # print(result['x_iters'])
-        # print(result['func_vals'])
         
-
         best_observed_preference_all_RF_no.append(best_observed_preference_RF_no)  
         best_observed_preference_all_RF.append(best_observed_preference_RF)  
         best_observed_preference_all_RF_W.append(best_observed_preference_RF_W)  
@@ -651,14 +450,6 @@ if __name__ == '__main__':
         df03 = pd.DataFrame(best_observed_preference_RF)
         df04 = pd.DataFrame(best_observed_preference_RF_no)
 
-        # print(np.array(X_samples_RF_GW_all).shape)
-        # print(np.array(X_samples_RF_W_all).shape)
-        # print(np.array(X_samples_RF_all).shape)
-        # print(np.array(X_samples_RF_all_no).shape)
-        # print(np.array(X_samples_RF_GW_all).squeeze(axis=0).shape)
-        # print(np.array(X_samples_RF_W_all).squeeze(axis=0).shape)
-        # print(np.array(X_samples_RF_all).squeeze(axis=0).shape)
-        # print(np.array(X_samples_RF_all_no).squeeze(axis=0).shape)
         X_dimension=np.array(X_samples_RF_GW).shape
         Y_dimension=np.array(y_samples_RF_GW).shape
         print(np.array(X_samples_RF_GW))
